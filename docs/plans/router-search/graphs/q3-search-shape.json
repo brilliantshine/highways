@@ -1,0 +1,281 @@
+{
+  "schema": 1,
+  "title": "Three ways one search could consult the routers",
+  "source": "plan-proposal",
+  "source_detail": "PLAN.md Q3",
+  "explanation": "The same question goes through one of three shapes; the recommendation is [asking every router at once](#fanout). Look at where each shape can go wrong: [walking down from the top](#walk) can take a wrong turn early, and [one big multiple-choice question](#onelist) runs out of room in a large repo. Leaves out the confidence threshold and the not-confident fallback, which are already decided.",
+  "groups": [
+    {
+      "id": "fanout",
+      "label": "Ask every router at once",
+      "note": "One round trip, however deep the repo is.",
+      "visible": true,
+      "nodes": [
+        "f-ask",
+        "f-rank"
+      ]
+    },
+    {
+      "id": "onelist",
+      "label": "One multiple-choice question",
+      "note": "Simplest, until the routers stop fitting in one request.",
+      "visible": true,
+      "nodes": [
+        "o-ask",
+        "o-risk"
+      ]
+    },
+    {
+      "id": "walk",
+      "label": "Walk down from the top",
+      "note": "Fewer requests, but each level waits on the last.",
+      "visible": true,
+      "nodes": [
+        "w-risk",
+        "w-step",
+        "w-top"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "f-ask",
+      "label": "ask each router separately, side by side: does this directory own X?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 202
+    },
+    {
+      "id": "f-rank",
+      "label": "rank directories by the probability each answer came back with",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 342
+    },
+    {
+      "id": "o-ask",
+      "label": "send every router as one question: which of these owns X?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 332,
+      "y": 202
+    },
+    {
+      "id": "o-risk",
+      "label": "a big repo's routers may not fit, or have too many choices to pick well",
+      "kind": "note",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 332,
+      "y": 342
+    },
+    {
+      "id": "out",
+      "label": "ranked directories with confidence, or 'not confident, grep'",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 308,
+      "y": 646
+    },
+    {
+      "id": "q",
+      "label": "a question: where is the code that handles X?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 308,
+      "y": 0
+    },
+    {
+      "id": "w-risk",
+      "label": "a wrong pick near the top hides the right answer for good",
+      "kind": "note",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 640,
+      "y": 482
+    },
+    {
+      "id": "w-step",
+      "label": "step into the best child and ask again, until no deeper router",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 640,
+      "y": 342
+    },
+    {
+      "id": "w-top",
+      "label": "ask the top router which of its children holds X",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 640,
+      "y": 202
+    }
+  ],
+  "edges": [
+    {
+      "id": "f-ask->f-rank",
+      "from": "f-ask",
+      "to": "f-rank",
+      "label": "a probability per directory",
+      "kind": "data",
+      "value": "yes/no with probability, per router",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "f-rank->out",
+      "from": "f-rank",
+      "to": "out",
+      "label": "top few",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "o-ask->o-risk",
+      "from": "o-ask",
+      "to": "o-risk",
+      "label": "where it fails",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "o-ask->out",
+      "from": "o-ask",
+      "to": "out",
+      "label": "one pick with probabilities",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "q->f-ask",
+      "from": "q",
+      "to": "f-ask",
+      "label": "option a",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "q->o-ask",
+      "from": "q",
+      "to": "o-ask",
+      "label": "option c",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "q->w-top",
+      "from": "q",
+      "to": "w-top",
+      "label": "option b",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "w-step->out",
+      "from": "w-step",
+      "to": "out",
+      "label": "the path it took",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "w-step->w-risk",
+      "from": "w-step",
+      "to": "w-risk",
+      "label": "where it fails",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "w-top->w-step",
+      "from": "w-top",
+      "to": "w-step",
+      "label": "best child",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    }
+  ]
+}

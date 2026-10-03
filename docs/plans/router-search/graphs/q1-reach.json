@@ -1,0 +1,357 @@
+{
+  "schema": 1,
+  "title": "What gets an agent to ask highways before it reads code?",
+  "source": "plan-proposal",
+  "source_detail": "PLAN.md Q1",
+  "explanation": "Two ways an agent ends up asking: [the automatic path](#automatic) needs nobody to remember, and [the asked-for path](#asked-for) covers questions the agent has mid-task. Both use [the one search](#engine). The recommendation is to build both. Leaves out how the search ranks routers (Q3) and whether router text may leave the machine (Q2).",
+  "groups": [
+    {
+      "id": "asked-for",
+      "label": null,
+      "note": null,
+      "visible": false,
+      "nodes": [
+        "midtask",
+        "told"
+      ]
+    },
+    {
+      "id": "automatic",
+      "label": null,
+      "note": null,
+      "visible": false,
+      "nodes": [
+        "hint",
+        "hook",
+        "silent"
+      ]
+    },
+    {
+      "id": "engine",
+      "label": null,
+      "note": null,
+      "visible": false,
+      "nodes": [
+        "cmd",
+        "model",
+        "result"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "agent",
+      "label": "agent works on the task",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 587,
+      "y": 401
+    },
+    {
+      "id": "cmd",
+      "label": "highways search command",
+      "kind": "module",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 312,
+      "y": 280
+    },
+    {
+      "id": "grep",
+      "label": "agent greps the repo, as today",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 0,
+      "y": 700
+    },
+    {
+      "id": "hint",
+      "label": "agent starts with the likely directories in hand",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 260,
+      "y": 700
+    },
+    {
+      "id": "hook",
+      "label": "a hook searches your message automatically, before the agent starts",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 27,
+      "y": 140
+    },
+    {
+      "id": "midtask",
+      "label": "agent runs the search command when it needs to find something",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 593,
+      "y": 229
+    },
+    {
+      "id": "model",
+      "label": "fast decision model (Jev) asked about the routers",
+      "kind": "external",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 312,
+      "y": 420
+    },
+    {
+      "id": "msg",
+      "label": "you send a message",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 287,
+      "y": 0
+    },
+    {
+      "id": "read",
+      "label": "agent reads only those directories' routers and code",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 520,
+      "y": 700
+    },
+    {
+      "id": "result",
+      "label": "confident about a few directories?",
+      "kind": "decision",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": true,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 312,
+      "y": 560
+    },
+    {
+      "id": "silent",
+      "label": "hook says nothing; the turn runs as it does today",
+      "kind": "note",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 827,
+      "y": 708
+    },
+    {
+      "id": "told",
+      "label": "a line in the root router, or a wheelchair stage step, tells the agent to search first",
+      "kind": "note",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 547,
+      "y": 0
+    }
+  ],
+  "edges": [
+    {
+      "id": "agent->midtask",
+      "from": "agent",
+      "to": "midtask",
+      "label": "a question comes up",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "cmd->model",
+      "from": "cmd",
+      "to": "model",
+      "label": "question and routers",
+      "kind": "data",
+      "value": "question plus router text",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "hint->agent",
+      "from": "hint",
+      "to": "agent",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "hook->cmd",
+      "from": "hook",
+      "to": "cmd",
+      "label": "the person's words",
+      "kind": "data",
+      "value": "the message text",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "midtask->cmd",
+      "from": "midtask",
+      "to": "cmd",
+      "label": "the agent's question",
+      "kind": "data",
+      "value": "the agent's own question",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "model->result",
+      "from": "model",
+      "to": "result",
+      "label": "probabilities",
+      "kind": "data",
+      "value": "a probability per directory",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "msg->hook",
+      "from": "msg",
+      "to": "hook",
+      "label": "every message",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "result->grep",
+      "from": "result",
+      "to": "grep",
+      "label": "not confident, asked-for path",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "result->hint",
+      "from": "result",
+      "to": "hint",
+      "label": "confident, automatic path",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "result->read",
+      "from": "result",
+      "to": "read",
+      "label": "confident, asked-for path",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "result->silent",
+      "from": "result",
+      "to": "silent",
+      "label": "not confident, automatic path",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "silent->agent",
+      "from": "silent",
+      "to": "agent",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "told->midtask",
+      "from": "told",
+      "to": "midtask",
+      "label": "prompts",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    }
+  ]
+}

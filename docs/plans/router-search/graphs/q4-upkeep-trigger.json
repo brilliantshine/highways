@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "title": "What could set off router upkeep in a repo without wheelchair?",
+  "source": "plan-proposal",
+  "source_detail": "PLAN.md Q4",
+  "explanation": "Three moments upkeep could run, all after an agent changes code. The recommendation is [the end of the agent's turn](#endturn), because the agent that made the change is still there to fix the router. [A commit check](#commit) has no agent to fix anything, and [a command run by hand](#manual) isn't automatic. Leaves out how a router is judged false, which is the next question.",
+  "groups": [
+    {
+      "id": "commit",
+      "label": "At commit",
+      "note": "A git hook checks what is being committed.",
+      "visible": true,
+      "nodes": [
+        "flag",
+        "pre"
+      ]
+    },
+    {
+      "id": "endturn",
+      "label": "End of the agent's turn",
+      "note": "A hook fires as the agent tries to finish.",
+      "visible": true,
+      "nodes": [
+        "back",
+        "stop",
+        "touched"
+      ]
+    },
+    {
+      "id": "manual",
+      "label": "Run by hand",
+      "note": "Nothing happens unless someone remembers.",
+      "visible": true,
+      "nodes": [
+        "cmd"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "back",
+      "label": "agent is sent back to check and fix those routers, then finishes",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 332,
+      "y": 482
+    },
+    {
+      "id": "cmd",
+      "label": "someone runs the sweep command when done",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 640,
+      "y": 202
+    },
+    {
+      "id": "done",
+      "label": "turn ends as it does today",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 308,
+      "y": 646
+    },
+    {
+      "id": "edit",
+      "label": "an agent changes code in a repo with routers",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 308,
+      "y": 0
+    },
+    {
+      "id": "flag",
+      "label": "commit is warned or blocked: these routers may be false. Nobody is there to fix them",
+      "kind": "note",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 342
+    },
+    {
+      "id": "pre",
+      "label": "you or an agent run git commit",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 202
+    },
+    {
+      "id": "stop",
+      "label": "agent tries to finish its turn",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 332,
+      "y": 202
+    },
+    {
+      "id": "touched",
+      "label": "did the change touch a directory that has a router?",
+      "kind": "decision",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": true,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 332,
+      "y": 342
+    }
+  ],
+  "edges": [
+    {
+      "id": "edit->cmd",
+      "from": "edit",
+      "to": "cmd",
+      "label": "option c",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "edit->pre",
+      "from": "edit",
+      "to": "pre",
+      "label": "option b",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "edit->stop",
+      "from": "edit",
+      "to": "stop",
+      "label": "option a",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "pre->flag",
+      "from": "pre",
+      "to": "flag",
+      "label": "git hook fires",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "stop->touched",
+      "from": "stop",
+      "to": "touched",
+      "label": "hook fires",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "touched->back",
+      "from": "touched",
+      "to": "back",
+      "label": "yes",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "touched->done",
+      "from": "touched",
+      "to": "done",
+      "label": "no",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    }
+  ]
+}

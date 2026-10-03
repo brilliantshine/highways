@@ -1,0 +1,357 @@
+{
+  "schema": 1,
+  "title": "How one search narrows a question to directories, then to files",
+  "source": "plan-proposal",
+  "source_detail": "PLAN.md Q3c option b (proposed), D19 and D20 (decided)",
+  "explanation": "[One round of questions](#ask) scores every router twice at once, then [the walk](#walk) goes top-down over those scores with no further waiting: go into a directory if X may be somewhere inside it, answer with it if X is in its own files. The root is entered on every search but is an answer only when X sits in its own files. Leaves out the hook and the per-repo sending switch, which sit in front of all of this.",
+  "groups": [
+    {
+      "id": "ask",
+      "label": "One round, all routers at once",
+      "note": "Two yes/no questions per router, each with a probability.",
+      "visible": true,
+      "nodes": [
+        "own",
+        "reach"
+      ]
+    },
+    {
+      "id": "files",
+      "label": "Narrow to files, per answer",
+      "note": "Only for answers well above the bar.",
+      "visible": true,
+      "nodes": [
+        "exists",
+        "fask",
+        "high"
+      ]
+    },
+    {
+      "id": "walk",
+      "label": "Top-down walk over the scores",
+      "note": "Runs locally, so depth adds no waiting.",
+      "visible": true,
+      "nodes": [
+        "answer",
+        "enter",
+        "start"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "answer",
+      "label": "every directory reached whose 'own files' score clears the answer bar is an answer",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 178,
+      "y": 708
+    },
+    {
+      "id": "conf",
+      "label": "any answers?",
+      "kind": "decision",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": true,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 154,
+      "y": 872
+    },
+    {
+      "id": "enter",
+      "label": "go into every child whose 'below it' score clears the walk bar, and repeat",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 178,
+      "y": 568
+    },
+    {
+      "id": "exists",
+      "label": "drop named files that no longer exist, rank the rest",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 1354
+    },
+    {
+      "id": "fask",
+      "label": "ask about each file its router names: is X in this file?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 1214
+    },
+    {
+      "id": "grep",
+      "label": "answer 'not confident, grep instead'",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 308,
+      "y": 1012
+    },
+    {
+      "id": "high",
+      "label": "for each answer (up to five): above the higher file bar?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 24,
+      "y": 1074
+    },
+    {
+      "id": "out",
+      "label": "answer: ranked directories, with likely files under those that got the file step",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 0,
+      "y": 1518
+    },
+    {
+      "id": "own",
+      "label": "is X in this directory's own files, or a subdirectory it says has no router?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 178,
+      "y": 202
+    },
+    {
+      "id": "q",
+      "label": "a question: where is the code that handles X?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 154,
+      "y": 0
+    },
+    {
+      "id": "reach",
+      "label": "is X anywhere in this directory or below it?",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 438,
+      "y": 202
+    },
+    {
+      "id": "start",
+      "label": "start at the root router",
+      "kind": "step",
+      "origin": "proposed",
+      "was": null,
+      "exclusive": false,
+      "ref": null,
+      "note": null,
+      "graph": null,
+      "x": 178,
+      "y": 428
+    }
+  ],
+  "edges": [
+    {
+      "id": "answer->conf",
+      "from": "answer",
+      "to": "conf",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "conf->grep",
+      "from": "conf",
+      "to": "grep",
+      "label": "none",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "conf->high",
+      "from": "conf",
+      "to": "high",
+      "label": "some",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "enter->answer",
+      "from": "enter",
+      "to": "answer",
+      "label": "directories reached",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "exists->out",
+      "from": "exists",
+      "to": "out",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "fask->exists",
+      "from": "fask",
+      "to": "exists",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "high->fask",
+      "from": "high",
+      "to": "fask",
+      "label": "those above it",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "high->out",
+      "from": "high",
+      "to": "out",
+      "label": "those below it, as directories only",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "own->answer",
+      "from": "own",
+      "to": "answer",
+      "label": "scores",
+      "kind": "data",
+      "value": "an 'own files' probability per router",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "q->own",
+      "from": "q",
+      "to": "own",
+      "label": "asked of every router",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "q->reach",
+      "from": "q",
+      "to": "reach",
+      "label": "asked of every router",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "reach->start",
+      "from": "reach",
+      "to": "start",
+      "label": "scores",
+      "kind": "data",
+      "value": "a 'below it' probability per router",
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    },
+    {
+      "id": "start->enter",
+      "from": "start",
+      "to": "enter",
+      "label": "then",
+      "kind": "sequence",
+      "value": null,
+      "inferred": false,
+      "origin": "proposed",
+      "was": null,
+      "note": null
+    }
+  ]
+}
