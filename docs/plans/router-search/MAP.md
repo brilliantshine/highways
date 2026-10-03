@@ -97,3 +97,32 @@ What is known about Jev, from public articles (not checked by trying it):
 - Whether Codex and Claude Code load routers the same way in every case (nested repos,
   symlinked pairs).
 - How a highways search would be invoked from an agent: a CLI, an MCP server, or a hook.
+
+## Since implementation started (2026-10-03)
+
+The first implementation run built highways in this repo and stopped at the test set. Lasting
+facts for the re-plan:
+
+- Built and passing, none of it depending on the bars: the scanner and its suite
+  (`create/`, 80 checks), the command and search (`bin/highways`, `highways/`), the sweep and
+  both hooks (`highways/sweep.py`, `highways/hooks.py`, 96 checks), the installer (24 checks),
+  the test-set tools (`highways/evalset.py`) and a local review page
+  (`highways/eval_review.py`). `search/bars.json` still holds the starting values.
+- Not done: highways' own root router, and every wheelchair change.
+- The first scoring run (84 reviewed questions: 71 work repo, 13 wheelchair) passed no
+  gate setting. On wheelchair alone, at an answer bar of 0.6: 62% answered, 0% wrong first,
+  90% precision, but 39% median narrowing, because 4 of 8 answers were the root router, which
+  owns `viewer/`, `install/` and `codex/` (none of which has a router). Walk and flat modes
+  gave identical results there.
+- Drafting from history yields few usable questions: wheelchair kept 13 of 69 after review
+  (most were root-only answers), and `~/projects/personal/mechanical-quill` (20 routers, 103
+  commits) drafts only 14, several of them bookkeeping. 39 of the 71 work repo
+  questions came from commits when that repo had one router.
+- The work repo's checkout is a `blob:none` partial clone; temp clones of it fetch missing files from
+  GitHub on demand (`highways/evalset.py`, `_inherit_promisor`).
+- Second measurement (2026-10-03, wheelchair and mechanical-quill, 113 reviewed questions): on
+  cached scores every gate passed at flat mode, answer bar 0.85 (answered 51.5%, top-wrong
+  1.9%). The live run answered 47.6% and failed only that gate; when search answers it is right
+  first about 98% of the time. Jev's `noul` scores for an identical request vary by about 0.01,
+  so questions scored at the bar flip; with 19 routers, one request occasionally exceeds the 0.7 s
+  round budget.

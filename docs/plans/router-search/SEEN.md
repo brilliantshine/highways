@@ -67,3 +67,53 @@
 2026-10-03T04:46:06Z shown d26b
 2026-10-03T04:46:06Z turn
 2026-10-03T05:06:24Z turn
+2026-10-03T05:25:26Z turn
+2026-10-03T05:42:10Z new b057 the four highways docs: creating routers, the router format, keeping routers true, using search
+2026-10-03T05:43:14Z new 0750 the installer: slash command on both harnesses, the command on PATH, both hooks registered
+2026-10-03T05:45:41Z new f76e the highways command and search, with two fixes: file questions now name their file, and every router is asked at once
+2026-10-03T05:57:52Z new 6aa9 the test-set tools: drafting questions from history, scoring them once, and the live speed run; fixed so review corrections aren't lost to the cache
+2026-10-03T06:02:16Z new 66ff the two hooks and the change-tracking routine; first tests were hollow and were redone
+2026-10-03T06:03:08Z turn
+2026-10-03T06:03:13Z shown b057
+2026-10-03T06:03:13Z shown 0750
+2026-10-03T06:03:13Z shown f76e
+2026-10-03T06:03:13Z shown 6aa9
+2026-10-03T06:03:13Z shown 66ff
+2026-10-03T06:03:13Z turn
+2026-10-03T06:53:49Z turn
+2026-10-03T07:22:16Z new 9f61 test-set result: search can't be both accurate and useful at any setting; plan sent back to planning
+2026-10-03T07:22:20Z shown 9f61
+2026-10-03T07:22:20Z turn
+2026-10-03T07:35:14Z turn
+2026-10-03T07:36:59Z turn
+2026-10-03T07:41:51Z turn
+2026-10-03T07:52:21Z new 4876 round 7: search could send a file outside the repo through a symlinked router (code bug, reproduced)
+2026-10-03T07:52:21Z new f64b round 7: written test questions would have been easy (router-aware author), unbalanced and unchecked; redesigned
+2026-10-03T08:01:55Z shown 4876
+2026-10-03T08:01:55Z shown f64b
+2026-10-03T08:01:55Z turn
+2026-10-03T10:03:21Z new 95f0 mechanical-quill: 14 drafted questions with suggestions, 6 keep / 8 drop
+2026-10-03T10:03:50Z turn
+2026-10-03T10:11:09Z new e5bb mechanical-quill written questions: 57 answerable (3 per routed folder) plus 6 with no answer
+2026-10-03T17:14:46Z new 060b wheelchair written questions: 30 answerable plus 4 with no answer; review page open for all three files
+2026-10-03T17:14:46Z turn
+2026-10-03T21:35:46Z new a365 second test: accurate when it answers (about 98% right first) but answers about half the time; live run fell just under the 50% line; plan sent back to planning
+2026-10-03T21:35:46Z turn
+2026-10-03T21:36:59Z turn
+2026-10-03T21:38:49Z turn
+2026-10-03T21:45:28Z turn
+2026-10-03T21:46:37Z turn
+2026-10-03T21:50:48Z turn
+2026-10-03T22:00:39Z new 01b4 search passed every gate live: answers 48.5%, 2% wrong first, never answered a no-answer message, 0.62 s for 95% of searches; bars committed
+2026-10-03T22:01:25Z turn
+2026-10-03T22:06:10Z new b47b live check: both hooks work in real Claude Code and Codex sessions
+2026-10-03T22:17:18Z shown a365
+2026-10-03T22:17:18Z shown 01b4
+2026-10-03T22:17:18Z shown b47b
+2026-10-03T22:17:18Z turn
+2026-10-03T22:31:51Z new fb01 verification round 1 failed with 10 gaps, mostly edge cases; fixes running
+2026-10-03T22:31:51Z turn
+2026-10-03T22:49:36Z new fd93 verification passed; highways is done
+2026-10-03T22:49:36Z shown fb01
+2026-10-03T22:49:36Z shown fd93
+2026-10-03T22:49:36Z turn

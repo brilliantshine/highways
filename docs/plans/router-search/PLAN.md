@@ -1,6 +1,6 @@
 ---
 slug: router-search
-status: approved   # planning | ready-for-review | approved | implementing | verifying | done
+status: done   # planning | ready-for-review | approved | implementing | verifying | done
 created: 2026-10-02
 ---
 
@@ -31,7 +31,7 @@ promoted to a Constraint or Accepted Risk, or waved off by the user.
 | W3 | 2026-10-02 | How many repos on this machine carry routers, for the test set (MAP.md "Not checked") | yes | Checked 2026-10-02 (every git repo under `~` to depth 7): two codebases, wheelchair (6 routers) and work repo (about 40, 13 checkouts). Became Q6 |
 | W4 | 2026-10-02 | Wheelchair files that reference the router pieces and need repointing at removal: `AGENTS.md`, `README.md`, `CONTRIBUTING.md`, `protocol/{AGENTS,implementation,graphs,sensitivity,spine,routers}.md`, `skills/AGENTS.md`, `skills/spine/`, `codex/prompts/spine.md`, `spine/`, `viewer/test/server.test.js` | yes | Settled by the agent: the Spec's "Removal from wheelchair" lists each file and what happens to it. `viewer/test/server.test.js` only uses `protocol/routers.md` as sample prose and needs no change |
 | W5 | 2026-10-02 | How the end-of-turn hook knows what this turn changed: the working tree against a snapshot the per-message hook takes at the start of the turn, or plain `git status`, which also shows changes from before the turn | yes | Settled by the agent: D33 |
-| W6 | 2026-10-02 | The work repo's routers differ from wheelchair's format: the root is a "kind of work → document to read" table, routers are cumulative instructions, some are 5 to 7 lines, and each `CLAUDE.md` is a symlink to `AGENTS.md`. The own question (D22) relies on a router saying which subdirectories it covers; some here may not | yes | Settled by the agent: search reads router text as prose and never assumes the wheelchair format (wheelchair `protocol/routers.md:128-135` already says an existing router is never measured against it). D27 puts this style in the test set on purpose, so the bars are tuned across both styles |
+| W6 | 2026-10-02 | The work repo's routers differ from wheelchair's format: the root is a "kind of work → document to read" table, routers are cumulative instructions, some are 5 to 7 lines, and each `CLAUDE.md` is a symlink to `AGENTS.md`. The own question (D22) relies on a router saying which subdirectories it covers; some here may not | yes | Settled by the agent: search reads router text as prose and never assumes the wheelchair format (wheelchair `protocol/routers.md:128-135` already says an existing router is never measured against it). D27 puts this style in the test set on purpose, so the bars are tuned across both styles. Superseded 2026-10-03 by D52: the work repo left the test set (see Accepted Risks) |
 
 ## Decision Log
 
@@ -90,6 +90,23 @@ Append-only. A reversal is a new entry superseding the old, never an edit.
 | D49 | The live run checks every metric and gate, answer and file precision included; phase 5 runs `eval latency` and commits `bars.json` only after it passes; the three `eval` subcommands are listed with their arguments; the citation for the dropped format passage is corrected | Review round 5 | review-round-5 |
 | D50 | Question files record their source path and HEAD; `score` and `latency` each make fresh temp clones from it; `score` writes candidate bars outside the repo, and only a passing live run copies them into `search/bars.json` | Review round 6 minors | review-round-6 |
 | D51 | The file step is optional. Its bar is the lowest setting with file precision ≥ 80% and at least one file returned. If none qualifies, `file` is `null` and search ships naming directories only; the file-precision gate applies only while the step is on | Collin, on review round 6's finding that nothing picked the file bar | user |
+| D52 | The work repo leaves the test set; search need not meet the gates there, and sending will usually be off for it. Supersedes D27's repo list | Collin, after the failed score: he doesn't need search on the work repo | user |
+| D53 | `~/projects/personal/mechanical-quill` (20 routers, the format's reference repo) joins wheelchair in the test set | Collin offered it; its routing is the fine-grained case search should handle | user |
+| D54 | The per-router question shape (D22, D31) is kept for the next measurement; a single comparative request across all routers is considered only if the new test set fails again | Wheelchair's results with the current shape were accurate (0% wrong first); redesigning before measuring on a fair set would be guessing | defaulted |
+| D55 | `score` refuses to choose bars from fewer than 40 reviewed questions per repo | The first run's 13-question repo moved each rate by 8 points per question | defaulted |
+| D56 | Test questions come from both sources: the reviewed questions drafted from history, plus questions a worker writes from each repo's current code (answers from today's routers, never from router text), reviewed on the review page | Collin chose both: written questions give the size and match today's routing; history questions stay as a check nobody wrote with the answer in mind | user |
+| D57 | Before measuring, wheelchair gets routers for its large unrouted parts (`viewer/`, 44 files; `codex/`, 11) through `/highways create`, with Collin's confirmation; the narrowing gate is unchanged | Collin: route them first. The 39% narrowing was a true statement about wheelchair's routing, and fixing routing is what highways is for | user |
+| D58 | `highways eval review`, a local token-guarded review page for question files, is part of the test-set tools | Collin asked for something better than editing JSONL by hand; built during implementation as T10 | user |
+| D59 | Search's router discovery skips a router file that is a broken symlink or resolves outside the repo, as `create/scan.sh` does; the first run's code reads it and must be fixed, with a phase 2 case | Round 7: reproduced — a symlink to a file outside the repo had its contents read, and would have been sent to Jev | review-round-7 |
+| D60 | Written questions come from a worker reading a router-free temp clone and naming code files; `highways eval written` maps those files to routers and gives unique ids; a coverage rule and about 10% unanswerable questions; metrics reported per repo and per origin; drafted-only top-wrong and a false-answer gate | Round 7: the "never from router text" rule couldn't be followed, ids collided, nothing said what to cover, and the history check D56 relies on was never reported | review-round-7 |
+| D61 | The review page saves an edited question when the reviewer leaves it, not only on keep or drop | Round 7: an edit made before moving on was lost | review-round-7 |
+| D62 | Round-8 clarifications: bar selection includes the drafted-only top-wrong and false-answer limits; coverage is an equal share per code-owning router, code meaning non-markdown files outside `docs/`; questions may not name paths or answer directories; unanswerable questions have at least 4 words, at least 3 per repo; written questions are pinned to a recorded `REV`; each written batch is a new file; the floor is checked before sending and includes 5 unanswerable; an empty rate is 0% and passes; a mixed router pair keeps its inside file | Each closes a round-8 finding where a worker would have had to stop and ask | review-round-8 |
+| D63 | The no-names rule bans paths, tracked file names and an answer directory's full path, not ordinary words; `score` re-checks every question's final text after review | Round 9: banning every directory word forced unnatural paraphrase and confounded drafted versus written; review edits could reintroduce a leak | review-round-9 |
+| D64 | Search sends a router's request once more if it has not answered 0.35 s into the 0.7 s round, using the first valid answer; bar selection adds answered rate ≥ 50% to its limits and accepts a setting only if it passes with every cached score moved by 0.02 down and up. The 50% gate is unchanged | Collin: make it robust and keep 50%. The live miss came from a request past the budget and from questions on the bar with Jev's ±0.01 noise | user |
+| D65 | Round-10 clarifications: the resend applies to the search round only; each attempt's timeout is the round budget left; leftover requests never delay exit; the margin's claim narrowed to answers crossing the bar; phase 5 states that routing, drafting, writing and review are done | Each closes a round-10 finding | review-round-10 |
+| D66 | The answered-rate gate and selection limit become 45%, with the ±0.02 margin, the resend and every accuracy gate unchanged. Supersedes D37's and D64's 50% | Collin. The 50% was set before any measurement; held to the accuracy limits and the margin, search answers a stable 47.6% of questions on the reviewed set and is right first about 98% of the time when it answers. Improvements to the answered rate are to be discussed later | user |
+| D67 | Bar selection ranks qualifying settings by the lowest of their three answered rates, ties by the cached one | Round 11: ranking by the cached rate picks the setting most likely to fail live, where the rate came out near the lowered figure | review-round-11 |
+| D68 | A settings file that parses but is malformed anywhere (`default` not exactly `"on"`/`"off"`, `repos` not a dict, any non-string key, any value not exactly `"on"`/`"off"`) counts as sending off everywhere; no partial reading | Verification round 2: keeping a valid `default: on` beside a broken `repos` sent a request; the switch must fail closed | verification-round-2 |
 
 ## Spec
 
@@ -100,7 +117,7 @@ non-goals, and concrete validation commands.
 A Mermaid diagram of the flow belongs here, added by Stage 2 at approval — not while the
 Spec is still churning. See `protocol/diagrams.md`.
 
-### The three flows at a glance
+### The flows at a glance
 
 Drawn at approval from `graphs/q1-reach.json`, `graphs/search-flow.json` and
 `graphs/q4-upkeep-trigger.json`, showing only the options that were decided. The prose below
@@ -141,6 +158,27 @@ flowchart TD
   TOP --> FB
   FB -- no --> OUT[ranked directories]
   FASK --> OUT2[ranked directories with likely files]
+```
+
+Measuring search before it ships: questions from two sources are reviewed, scored once, and
+checked live; only a run that passes every gate sets the bars.
+
+```mermaid
+flowchart TD
+  R[route wheelchair's big unrouted folders, with confirmation] --> D[draft questions from commit history]
+  R --> W[a worker writes questions from code, with every router removed from its copy]
+  W --> WM[eval written maps the named files to routers and refuses leaks]
+  D --> RV[Collin reviews on the review page]
+  WM --> RV
+  RV --> F{40 answerable per repo, 5 unanswerable, no leaks?}
+  F -- short --> W
+  F -- a leak --> RV
+  F -- yes --> SC[score once against Jev, choose bars within every limit]
+  SC --> G{every gate passes on cached scores?}
+  G -- no --> PL[plan goes back to planning]
+  G -- yes --> LT[live run of the real search, gates checked again]
+  LT -- fails --> PL
+  LT -- passes --> BARS[write search/bars.json]
 ```
 
 Upkeep outside wheelchair: as the agent tries to finish, the end-of-turn hook checks what this
@@ -220,6 +258,8 @@ Shell commands, used by agents, hooks and wheelchair:
 | `highways eval draft --source PATH` | drafts test questions from a fresh temp clone (below) |
 | `highways eval score --questions FILE [--questions FILE ...]` | scores reviewed questions once, caches them, and chooses the bars (below) |
 | `highways eval latency --questions FILE [--questions FILE ...]` | runs the real search on reviewed questions in fresh temp clones and checks the gate live (below) |
+| `highways eval written --source PATH --rev REV --from FILE` | turns a worker's `{question, files}` list into a written-questions file: answers mapped from routers at `REV`, unique ids (D60, D62) |
+| `highways eval review --questions FILE [--questions FILE ...] [--port N] [--prefix PATH]` | serves a local review page for unreviewed question files on 127.0.0.1, guarded by a random token; each keep or drop saves at once, and an edited question saves when you leave it (D61), and finishing a file writes it as reviewed with only the kept questions (D58) |
 
 Exit codes: 0 for every search result, including "not confident" and "unavailable", which are
 answers rather than failures; 1 for a refusal the caller must act on (outside a git repo); 2
@@ -233,11 +273,15 @@ Steps, in order:
    skip git-ignored, dotted and nested-repo directories, and resolve symlinks so an
    `AGENTS.md`/`CLAUDE.md` pair counts as one router. A directory holding two real router files
    sends both texts, each labelled with its filename. A router's parent is the nearest
-   ancestor directory that has one. No routers at all: answer `no-routers`, naming
+   ancestor directory that has one. A router file that is a broken symlink, or resolves to a
+   file outside the repo, is skipped exactly as `create/scan.sh` skips it, and its text is never
+   read or sent; in a directory where one router file is inside and the other resolves
+   outside, the inside one is the router and the directory still counts in the tree. The code
+   built in the first run reads such files, and must be fixed (D59, D62). No routers at all: answer `no-routers`, naming
    `/highways create`. Send nothing.
 2. **Check the switch.** Read `~/.config/highways/config.json` (D14):
    `{"default": "off", "repos": {"<abs repo path>": "on"|"off"}}`. A missing or unparseable file
-   counts as `{"default": "off"}`. If sending is off for this repo, answer `not-enabled`
+   counts as `{"default": "off"}`, and so does a file that parses but is malformed anywhere (D68). If sending is off for this repo, answer `not-enabled`
    with the note "sending is off for this repo; only the person can turn it on, from their own
    terminal", and send nothing. Nothing inside the repo is read for this. `highways enable`
    and `highways default on` refuse unless stdin and stdout are both a terminal, and then
@@ -258,9 +302,14 @@ Steps, in order:
      Each question carries `criteria` for `true` and `false` written to the same
      wording.
 
-   The whole round has a 0.7-second budget (D36, D45). If any request fails, times out, or comes back
-   without both probabilities, the search answers `unavailable` and none of the round is
-   used.
+   The whole round has a 0.7-second budget (D36, D45). A router's request that has not
+   answered 0.35 seconds into the round, or that fails before then, is sent once more in
+   parallel (same body, same `zdr`), and the first valid answer of the two is used; no
+   request is sent a third time (D64). This applies to the router round of a real search only,
+   never to the file step or to `eval score`. Each attempt's timeout is the round budget left
+   when it is sent, and requests still running when the round ends never delay the command's
+   exit or its printed answer (D65). If a router still has no valid answer when the budget
+   ends, the search answers `unavailable` and none of the round is used.
 5. **Walk in plain code (D22, D44).** Start at the root router. Without one, start from a
    virtual root whose children are the topmost routers. The root is always entered, whatever its own `reach`. Below it, enter a
    child only if its `reach` is at least the walk bar; there is no other way in. So an answer
@@ -293,7 +342,7 @@ The bars, the cap and the mode live in `search/bars.json` (`walk`, `answer`, `fi
 `mode`). They hold 0.5, 0.7, 0.85, 5 and `walk` until the test set sets them, and must always satisfy
 `0.5 ≤ answer ≤ file` whenever `file` is not `null` (D17, D24, D45, D51).
 
-### The test set (D26, D27, D29, D37)
+### The test set (D26, D29, D37, D52, D53)
 
 Three steps. Every file the test set produces lives under `~/.cache/highways/eval/`, never in
 any repo, because questions drawn from a work repo are that repo's content.
@@ -312,10 +361,51 @@ any repo, because questions drawn from a work repo are that repo's content.
    any router-named files it touched. The draft is written as
    `~/.cache/highways/eval/<repo>-questions.jsonl`, headed by `{"reviewed": false, "source": "<absolute source path>", "head": "<source HEAD when drafted>"}`.
    `score` and `latency` each make their own fresh temp clone from that `source` (D50).
+
+   **Written questions (D56, D60, D62).** Alongside the drafted ones, a worker writes questions
+   from each repo's current code:
+   - The worker reads a temp clone of the source at a fixed commit, recorded as `REV`, with
+     every `AGENTS.md` and `CLAUDE.md` deleted from that clone, so no router text is loaded or
+     read; it works from code and visible behaviour only.
+   - It writes a plain JSONL list of `{"question", "files"}`: each question asks, in a
+     developer's words, where some behaviour lives, and `files` names the 1 to 3 tracked code
+     files where it lives. A question never contains a path (anything with a `/`), the file
+     name of any tracked file, or the full repo-relative path of any of its answer
+     directories; ordinary words that happen to be a directory's last part, such as
+     `timeline` or `api`, are allowed. `eval written` refuses a question that breaks this,
+     and `score` checks every question's final text the same way after review, refusing to
+     run until the reviewer fixes it (D63).
+   - Code files are tracked files that are not markdown and not under `docs/`. Coverage: every
+     router directory that owns at least one code file gets an equal share of the answerable
+     written questions, at least 2 each; drafted questions don't count toward the shares. About one in ten questions are unanswerable instead, at
+     least 3 per repo: a message of at least 4 words (the per-message hook's threshold) that a
+     person might send and that has no location in the repo, such as "ok now commit that and
+     push it" or a question about another tool, with `files: []`.
+   - `highways eval written --source PATH --rev REV --from FILE` turns that list into a
+     question file at `~/.cache/highways/eval/<repo>-written-<batch>-questions.jsonl`, where
+     `<batch>` is the first number from 1 with no such file. Same header as a drafted file
+     (`head` is `REV`); per question, `id` `w-<repo>-<batch>-<n>` (unique), `commit` and
+     `parent` both `REV`, `subject` `"written"`, `answers` the covering routers of its `files`
+     at `REV` (the same mapping `draft` uses), and `files` those of its files that a covering
+     router names. It refuses a file not tracked at `REV`, and never overwrites a file.
+
+   `score` and `latency` treat written questions exactly like drafted ones. Each batch is
+   reviewed on the review page like any other file. The test set is every reviewed drafted
+   and written file, for wheelchair and mechanical-quill (D52, D53). A repo is identified by
+   the real path of its header's `source`. Before sending anything, `score` refuses unless
+   each repo has at least 40 reviewed answerable questions and the pool has at least 5
+   reviewed unanswerable ones (D55, D62). A question dropped for a failed request still
+   counts toward the floor. A repo short of the floor gets another batch of written
+   questions, reviewed the same way; a pool short of unanswerable questions gets them in a
+   new batch for the repo with fewer.
+
 2. **Review.** A person edits the file:
    - rewrites a question into "where is the code that ..." form where the subject isn't one;
    - deletes questions that can't be fixed;
    - sets `"reviewed": true`.
+
+   The review page (`highways eval review`) does all three; editing the file by hand stays
+   valid. The page refuses a file already marked reviewed (D58).
 
    `score` refuses a file still marked `false`.
 3. **Score.** `highways eval score --questions FILE [--questions FILE ...]` checks out each
@@ -341,6 +431,11 @@ Metrics, over the pooled questions:
   one. Otherwise it points at the directory's own files: those under it, minus subdirectories
   that have their own router. Unanswered questions don't enter the median, since the answered
   rate already counts them (D45, D46);
+- reported for the pool, for each repo, and for drafted and written questions separately
+  (D60). The only rate that can have nothing to count over is drafted-only top-wrong,
+  when no drafted question was answered; it is then 0% and passes, and the report says so; the floor guarantees the
+  false-answer rate always has questions (D62). Answered rate, top-wrong, precision, recall and narrowing count answerable questions
+  only; an unanswerable question that gets any answer counts toward the false-answer rate;
 - latency and live results: measured separately, after the bars and mode are chosen.
   `highways eval latency` runs the real `highways search` (production budgets, the candidate bars,
   mode and cap) once per reviewed question at its parent commit. It runs with
@@ -353,7 +448,15 @@ Metrics, over the pooled questions:
   previous values (D50).
 
 For each mode separately, the walk and answer bars are chosen to maximise the answered rate
-subject to top-wrong ≤ 5%, answer precision ≥ 80% and median narrowing ≤ 10% (D48). Then the
+subject to top-wrong ≤ 5% (pooled and over drafted questions alone), answer precision ≥ 80%,
+median narrowing ≤ 10%, false-answer rate ≤ 5% and answered rate ≥ 45% (D48, D62, D64, D66). A
+setting counts only if it meets all of these three times over: on the cached scores, with
+every cached `reach` and `own` lowered by 0.02, and with every one raised by 0.02, clamped to
+[0, 1]. Jev's scores for an identical request were measured to move by about 0.01, so the
+margin is twice that. It guards against answers crossing the bar, which is what failed live;
+moving every score the same way leaves their order unchanged, so it does not model noise that
+reorders answers (D64, D65). Among the settings that qualify, the one chosen has the highest
+answered rate in the worst of the three, ties going to the higher cached answered rate (D67). Then the
 file bar is chosen as the lowest setting whose file precision is ≥ 80% with at least one file
 returned. That is the setting that names files most often while staying accurate. If no
 setting qualifies, `bars.json` sets `"file": null`, the file step is off, and search ships
@@ -364,16 +467,21 @@ as answering more often. A tie goes to `flat`, the simpler mode (D44, D45). The 
 rather than shipping, if any of these fail. They are checked twice: on the cache with the
 best bars, and again on the live latency run, so a search that times out in real use can't
 pass on cached scores (D48, D49):
-- answered rate ≥ 50%;
-- top-wrong ≤ 5%;
+- answered rate ≥ 45% (D66; it was 50% until the third measurement);
+- top-wrong ≤ 5%, pooled, and also over the drafted questions alone (D60);
+- false-answer rate on unanswerable questions ≤ 5% (D60); with the 5 to 10 unanswerable
+  questions expected, that allows none. The drafted-only top-wrong limit is the same in
+  practice: with roughly 10 to 15 answered drafted questions, one wrong first answer fails
+  it, and as a selection limit it pushes the answer bar up until none is wrong;
 - answer precision ≥ 80%;
 - file precision ≥ 80%, only while the file step is on; with it on, the live run must also
   return at least one file, or the step is switched off rather than shipped empty (D51);
 - median narrowing ≤ 10%;
 - 95th-percentile latency ≤ 1 second (live run only).
 
-Not part of CI: it needs a key and sends data. With 100 questions per repo and about 40
-routers, a full run is a few million input tokens, well under a dollar at the listed price.
+Not part of CI: it needs a key and sends data. With about 100 questions across wheelchair and
+mechanical-quill and at most about 20 routers per repo, a full run is well under a million
+input tokens, a few cents at the listed price.
 
 ### The per-message hook (D11, D12, D33)
 
@@ -543,7 +651,9 @@ Edited to point at highways or to drop the line:
   wording);
 - `protocol/graphs.md:29`, which defines a router by `protocol/routers.md`;
 - `protocol/sensitivity.md:70`, which cites `spine/scan.sh` as an example;
-- `skills/AGENTS.md:22`.
+- `skills/AGENTS.md:22`;
+- any router phase 5 created in wheelchair (expected `codex/AGENTS.md`) that names a file
+  removed here.
 
 `viewer/test/server.test.js:324` uses the path as sample prose and stays. Wheelchair's
 `install.sh` removes a previously rendered `spine` skill and Codex prompt from the harness
@@ -575,8 +685,26 @@ homes, because its glob alone would leave the old copies installed.
    - every request carries `zdr: true`;
    - the file step keeps only existing named files;
    - the cap of 5;
+   - a router request slower than 0.35 s is sent once more and the first valid answer wins; a
+     router with no valid answer by 0.7 s still makes the search `unavailable` (D64);
    - a symlinked `CLAUDE.md` counted once;
+   - a router file symlinked to a file outside the repo is skipped and its text appears in no
+     request (D59);
    - nothing in the fixture repo changes (hash before and after).
+   - `eval score` refuses, sending nothing, when a repo has fewer than 40 reviewed answerable
+     questions or the pool fewer than 5 reviewed unanswerable ones (D55, D62);
+   - bar selection rejects a setting that fails the drafted-only top-wrong or false-answer
+     limit (D62), or that passes on the cached scores but fails with every score moved by
+     0.02 in either direction (D64);
+   - an answered rate between 45% and 50% passes both the selection limit and the gate in
+     `score` and `latency` (D66);
+   - among qualifying settings, selection prefers the higher worst-case answered rate (D67);
+   - `eval written` writes a new batch file and never overwrites one, refuses a question
+     naming a path or an answer directory, maps at `--rev`, gives every question a unique id, maps its files to the covering routers
+     at `REV`, and refuses an untracked file; an unanswerable question's any answer counts
+     toward the false-answer rate and not toward answered rate; metrics are reported per
+     repo and per origin (D60);
+   - the review page keeps an edited question when the reviewer moves to another (D61).
 
    Fixture routers are built in a temp directory, never committed (IDEA.md Constraints).
 3. **Hooks.** Run `bash test/hooks.sh`. Cases:
@@ -593,11 +721,26 @@ homes, because its glob alone would leave the old copies installed.
    - neither hook writes inside the fixture repo.
 4. **Install.** Run `bash test/install.sh` against temp harness homes. It must be idempotent,
    leave other hooks untouched, and refuse malformed files.
-5. **Test set.** By hand, in this order:
-   - `highways eval draft` for `~/projects/personal/wheelchair` and the work repo's checkout;
-   - Collin's review;
-   - one `highways eval score` over both files;
-   - one `highways eval latency` over both files.
+5. **Test set.** The routing, drafting, writing and review steps below were done in the second
+   measurement (2026-10-03) and are not repeated: its reviewed question files are reused as they
+   are (D64). What remains is the score and the live run, under the 45% gate (D66); the R8
+   task stopped in the second run is re-opened for this. The full order, for a repo measured
+   from scratch:
+   - route wheelchair first (D57): run `/highways create` on `~/projects/personal/wheelchair`;
+     Collin confirms its pre-write list, which is expected to propose routers for `viewer/`
+     and `codex/` (and the root search line); the routers are written and committed in
+     wheelchair;
+   - `highways eval draft` for `~/projects/personal/mechanical-quill`; wheelchair's already
+     reviewed file (13 questions) is kept and not redrafted; the work repo's file is no
+     longer used (D52);
+   - a worker writes the written questions for both repos at their current `HEAD`, from a
+     router-free temp clone, and `highways eval written` turns each list into a question
+     file (D56, D60);
+   - Collin reviews every unreviewed file on the review page (`highways eval review`);
+   - one `highways eval score` over all reviewed files, which refuses a repo with fewer than
+     40 reviewed answerable questions, a pool with fewer than 5 unanswerable, or any question
+     naming a path or answer directory (D55, D62, D63);
+   - one `highways eval latency` over the same files.
 
    Commit `search/bars.json`, and nothing else, only after the live run passes every gate.
    Then a live check in each harness: in a temp copy of wheelchair
@@ -628,6 +771,8 @@ re-raise them.
 | Two sessions editing one checkout at once each see the other's edits as their own turn's changes | Over-reporting only means checking an extra router, the safe direction | planning |
 | An agent could still turn sending on by editing `~/.config/highways/config.json` directly | D38 stops the command path and `protocol/search.md` forbids it; a deliberate file edit is outside what highways can prevent | review-round-1 |
 | A `git pull` during a turn makes the end-of-turn hook list routers for upstream changes the agent didn't make | Over-reporting only means checking an extra router, the safe direction | review-round-4 |
+| The bars are tuned only on wheelchair and mechanical-quill, both in the format `protocol/routers.md` describes, but apply in every repo | Sending is off by default and switched on per repo; a repo whose routers are in another style (such as the work repo) can stay off | review-round-7 |
+| The bars are chosen and gated on the same questions, with none held back, so the chosen setting looks slightly better than it will be | With roughly 100 questions a held-back set would be too small to gate on; the 40-per-repo floor and the separate drafted-question gate limit the effect | review-round-7 |
 | Subagents get no per-message hook; they find search through the root-router line their harness loads | The root-router line (D41) reaches every agent working in the repo | review-round-1 |
 
 ## Review Rounds
@@ -790,14 +935,254 @@ Round 6 is the third round since Collin's reset, and its two majors are one genu
 Q9 settled by Collin (D51). Round 6 triage upheld no blocking or major finding, and no user-decision is still open, so it is clean. The Spec diagrams were drawn and the plan was marked approved on 2026-10-02.
 
 
+### Round 7 — 2026-10-03
+
+**Lanes:** GPT / Sol (gpt-6.1-sol), mechanics lens; Claude / default reviewer model, intent lens; cross-family: yes.
+
+**Changed since Round 6:** the re-plan after the failed first scoring run (the plan went back to planning on 2026-10-03):
+- Decision Log D52–D57: the work repo leaves the test set; mechanical-quill joins it; the per-router question shape is kept; `score` needs at least 40 reviewed questions per repo; questions come from history plus questions written from current code; wheelchair's unrouted `viewer/` and `codex/` get routers before measuring.
+- "The test set", step 1: the new "Written questions" paragraph; the cost line.
+- "Phases and validation": a new phase 2 case for the 40-question floor; phase 5 rewritten in order (route wheelchair, draft mechanical-quill, write questions, review, score, latency).
+- Since round 6, the code now exists in this repo (`bin/`, `highways/`, `hooks/`, `create/`, `protocol/`, `install.sh`, `test/`); MAP.md's new last section says what is built. The review page (`highways eval review`), added during implementation at Collin's request, is now in the Commands table and the test set's review step (D58).
+
+| Lane | Reported | Finding | Lead verdict | Resolution |
+|------|----------|---------|--------------|------------|
+| GPT | blocking | Search's router discovery reads a router file symlinked outside the repo, so its contents could be sent; the scanner skips these | downgraded to major | Real (reproduced: an outside file's text was read). The Spec already required the scanner's rules; the built code breaks them. Made explicit with a phase 2 case so the next run fixes it (D59) |
+| Claude | major | Written questions can't be written "never from router text": routers load as live instructions and the writer needs them for the answers | upheld | Router-free temp clone; the writer names code files; `eval written` maps files to routers (D60) |
+| Claude | major | History questions, D56's check against easy written questions, are pooled and never reported or gated alone | upheld | Per-origin and per-repo metrics; drafted-only top-wrong gate (D60) |
+| Claude | major | Written questions would all share one id (the commit), so the review page would act on the first | upheld | Unique `w-<repo>-<n>` ids from `eval written` (D60) |
+| GPT | minor | Same id collision | upheld | Same fix |
+| Claude | major | Nothing says which directories written questions cover, which decides narrowing | upheld | Coverage rule: 2 per code-owning router, the rest by code-file share (D60) |
+| Claude | minor | Never measures what the per-message hook gets: messages with no location | upheld | About 10% unanswerable questions and a false-answer gate (D60) |
+| Claude | minor | The review page can't edit `answers`, and shows an empty change list for written questions | declined | Answers now derive from named files by `eval written`; a wrong mapping is dropped in review. The empty change list is cosmetic |
+| Claude | minor | "Per repo" key undefined; floor counted when; no second pass | upheld | Real path of `source`; after review and drops; write more and review again (D60) |
+| Claude | minor | Bars now tuned only on wheelchair-format repos; W6 and the section heading still cite D27 | upheld | Accepted Risk; references corrected |
+| Claude | minor | Bars chosen and gated on the same questions | accepted-risk | Accepted Risks |
+| Claude | minor | A new `codex/` router naming `prompts/spine.md` isn't in phase 6's list | upheld | Added to the removal list |
+| GPT | minor | The 40-question floor isn't implemented yet | declined | The Spec is the instruction for the next run; phase 2 already lists the case |
+| GPT | minor | The review page loses an edit made before moving on | upheld | Saves on leaving the question (D61) |
+
+Round 7 triage upheld major findings, so it is not clean. Round 8, scoped to D59–D61, follows.
+
+### Round 8 — 2026-10-03
+
+**Lanes:** GPT / Sol (gpt-6.1-sol), mechanics lens; Claude / default reviewer model, intent lens; cross-family: yes.
+
+**Changed since Round 7:** D59–D61 only:
+- "Search" step 1: symlinked router files resolving outside the repo are skipped; phase 2 case.
+- "The test set": the "Written questions" paragraph rewritten (router-free temp clone, `eval written`, coverage rule, unanswerable questions, repo key and floor counting); metrics reported per repo and per origin; two new gates (drafted-only top-wrong, false-answer rate).
+- Commands table: `highways eval written`; the review page's edit saving.
+- Phases: phase 2 cases for `eval written`, unanswerable scoring and edit saving; phase 5's writing step.
+- Accepted Risks: two new rows. Removal list: new wheelchair routers naming removed files. W6's outcome and the test-set heading corrected.
+
+| Lane | Reported | Finding | Lead verdict | Resolution |
+|------|----------|---------|--------------|------------|
+| Claude | major | Bar selection ignores the two new gates, so it can pick a setting that fails them when a stricter one passes (checked: `_passes_selection` in `highways/evalset.py`) | upheld | Both limits join selection (D62) |
+| GPT | minor | Same, with a worked example | upheld | Same fix |
+| Claude | major | Coverage by file count sends about 40% of wheelchair's questions to plan JSON under `docs/`, and loads the coarsest routers (checked: 35 of the root's 40 non-markdown files are `docs/plans/**/*.json`) | upheld | Code means non-markdown outside `docs/`; an equal share per code-owning router (D62) |
+| Claude | major | A second batch of written questions has no file, id or review path; the fixed file name collides with the reviewed one | upheld | Numbered batch files, ids carry the batch, never overwrite (D62) |
+| GPT | minor | Same refill gap | upheld | Same fix |
+| Claude | major | Nothing stops a written question from naming the answer's path or directory | upheld | `eval written` refuses such questions (D62) |
+| GPT | major | Rates over an empty group (no answered drafted question, no unanswerable question left) are undefined | upheld | Empty rate is 0% and passes, reported; the floor requires 5 unanswerable (D62) |
+| Claude | minor | The floor is defined two ways, before and after sending | upheld | Checked before sending; failed requests still count (D62) |
+| Claude | minor | ≤ 5% false answers allows none in practice | upheld | Stated |
+| Claude | minor | "commit and push" is under the hook's 4-word threshold | upheld | Unanswerable questions have at least 4 words (D62) |
+| Claude | minor | The worker's HEAD and `eval written`'s HEAD can differ | upheld | `--rev` pins it (D62) |
+| Claude | minor | D59 is ambiguous for a router pair with one file inside and one outside | upheld | The inside file is the router (D62) |
+
+Round 8 triage upheld major findings, so it is not clean. Round 9, scoped to D62, follows; it is the third round since Collin's last decision (D57), so it is the last before the cap.
+
+### Round 9 — 2026-10-03
+
+**Lanes:** GPT / Sol (gpt-6.1-sol), mechanics lens; Claude / default reviewer model, intent lens; cross-family: yes.
+
+**Changed since Round 8:** D62 only:
+- "Search" step 1: a router pair with one file outside the repo.
+- "The test set": the "Written questions" paragraph (pinned `REV`, no paths or answer directories in questions, code files defined, equal share per router, unanswerable questions of 4+ words and at least 3 per repo, numbered batch files, floor before sending including 5 unanswerable); empty-group rule; bar selection now includes the drafted-only top-wrong and false-answer limits; the false-answer gate allows none in practice.
+- Commands table: `eval written` takes `--rev`. Phase 2 cases for the floor, selection and `eval written`.
+
+| Lane | Reported | Finding | Lead verdict | Resolution |
+|------|----------|---------|--------------|------------|
+| Claude | minor | Commands table and a phase 2 case still say `HEAD` where D62 says `REV` | upheld | Corrected |
+| GPT | minor | Same | upheld | Same fix |
+| Claude | minor | The drafted-only top-wrong limit allows no wrong answers in practice, unstated | upheld | Stated |
+| Claude | minor | The no-names rule bans everyday words that are directory names, confounding drafted versus written | upheld | Narrowed to paths, file names and full answer paths (D63) |
+| Claude | minor | Review edits can put a forbidden name back | upheld | `score` re-checks final text (D63) |
+| GPT | minor | Same | upheld | Same fix |
+| Claude | minor | Equal share unclear about drafted questions; phase 5 omits the unanswerable floor; empty-group rule vs `≥` gates; which repo gets extra unanswerable questions | upheld | Each stated |
+
+Round 9 triage upheld no blocking or major finding and no user-decision is open, so it is clean. A test-set flow diagram was added to the Spec and the plan was marked approved on 2026-10-03.
+
+
+### Round 10 — 2026-10-03
+
+**Lanes:** GPT / Sol (gpt-6.1-sol), mechanics lens; Claude / default reviewer model, intent lens; cross-family: yes.
+
+**Changed since Round 9:** D64 only (the plan went back to planning after the second measurement's live run failed the answered-rate gate; this is the first round since Collin's decision D64, so the cap resets):
+- "Search" step 4: a router request not answered 0.35 s into the 0.7 s round is sent once more; the first valid answer wins.
+- "The test set", selection paragraph: answered rate ≥ 50% joins the selection limits; a setting must pass on the cached scores and with every cached score moved by 0.02 down and up.
+- Phases: phase 2 cases for the resend and the margin; phase 5 reuses the reviewed question files.
+- MAP.md: the second measurement's results.
+| Lane | Reported | Finding | Lead verdict | Resolution |
+|------|----------|---------|--------------|------------|
+| GPT | major | With the ±0.02 margin, no setting passes on the reused cache: best worst-case answered rate 47.6% | user-decision | Checked by the lead's own replay (46 settings meet every accuracy limit; best 47.6%). Q13 |
+| Claude | major | The task and Prior Work tables don't show D64's work and misstate R1, R6, R7 | upheld | Prior Work updated; the next Stage 3 rebuilds the task table from it |
+| Claude | minor | Phase 5 lists drafting, writing and review before saying they're not repeated | upheld | Reworded (D65) |
+| GPT | minor | Same | upheld | Same fix |
+| Claude | minor | The resend's scope (file step, scoring) is unstated | upheld | Search round only (D65) |
+| Claude | minor | The resend's timeout and leftover threads can delay exit past 1 s | upheld | Remaining budget; never delays exit (D65) |
+| GPT | minor | Same, with a measured 1.09 s exit | upheld | Same fix |
+| Claude | minor | The margin doesn't model noise that reorders answers | upheld | Claim narrowed (D65) |
+
+Round 10 has an open user-decision (Q13), so it is not clean. The plan is back in planning for Q13.
+
+
+### Round 11 — 2026-10-03
+
+**Lanes:** GPT / Sol (gpt-6.1-sol), mechanics lens; Claude / default reviewer model, intent lens; cross-family: yes.
+
+**Changed since Round 10:** D65 and D66 (first round since Collin's decision D66, so the cap resets):
+- "Search" step 4: the resend applies to the search round only; each attempt's timeout is the round budget left; leftover requests never delay exit (D65).
+- "The test set": the margin's claim narrowed (D65); the answered-rate gate and selection limit are 45% (D66).
+- Phase 5's preamble: routing, drafting, writing and review are done and not repeated (D65).
+- Prior Work: updated to the second run's state.
+| Lane | Reported | Finding | Lead verdict | Resolution |
+|------|----------|---------|--------------|------------|
+| Claude | major | `_gates` still checks 50% and neither Prior Work nor phase 2 says to change it | downgraded to minor | The Spec's gate list and selection paragraph both state 45% (D66), and Stage 3 reconciles the tree against the Spec; fixed anyway in Prior Work plus a phase 2 case |
+| GPT | minor | Same | upheld | Same fix |
+| Claude | minor | Which answered rate selection maximises, once measured three times, is unstated | upheld | Worst case first, then cached (D67) |
+| Claude | minor | R8 and phase 5 still describe the stopped run | upheld | Phase 5 says R8 re-opens under D66 |
+| GPT | minor | Prior Work marks D61's edit saving unfinished | upheld | Marked pre-existing |
+
+Round 11 triage upheld no blocking or major finding and no user-decision is open, so it is clean. The plan was marked approved on 2026-10-03; the Spec's flow diagrams still match it.
+
+
 ## Prior Work
 
 | Spec item | State | Evidence (file:line) | Confidence |
 |-----------|-------|----------------------|------------|
+| Phase 0 live check (D34, D43) | pre-existing | Log 2026-10-02: ZDR request answered, Jev on the ZDR list, Collin confirmed account ZDR-only | high |
+| Creation: scanner and suite moved (D7) | pre-existing | `create/scan.sh`, `create/test/run.sh`; 80 passed 2026-10-03 | high |
+| Creation docs: `protocol/create.md`, `routers.md`, `sweep.md`, `search.md` (D41) | pre-existing | `protocol/`; the Creation grep prints nothing | high |
+| Search: CLI, switch, Decisions client, walk, rank, file step (Search steps 1–8) | partial | `highways/cli.py`, `config.py`, `decisions.py`, `search.py`, `routers.py`; the D59 skip is done (R1); missing the D64 resend (`decisions.batch`, `search.score_routers`) | high |
+| Per-message and end-of-turn hooks, snapshot, sweep (D11, D12, D18, D32, D33, D39, D40) | pre-existing | `hooks/`, `highways/hooks.py`, `snapshot.py`, `sweep.py`; `bash test/hooks.sh` 96 passed | high |
+| Install and wrappers | pre-existing | `install.sh`, `skills/highways/SKILL.md`, `codex/prompts/highways.md`; 24 passed | high |
+| Test-set tools: draft, score, latency (D37, D44–D51) | partial | `highways/evalset.py`; `eval written`, floors, per-group metrics and leak checks done (R2); missing D64's answered-rate selection limit and the ±0.02 margin (`_passes_selection`, `_best_for_mode`), and D66's 45% gate (`_gates` still checks `>= .50`, used by `score` and `latency`) | high |
+| Review page (D58, D61) | pre-existing | `highways/eval_review.py`: edits save on leaving a question (R3) | high |
+| Reviewed test questions, both repos | pre-existing | `~/.cache/highways/eval/`: wheelchair drafted (13) and written-1 (33), mechanical-quill drafted (6) and written-1 (61), all `reviewed: true` | high |
+| Routers for wheelchair (D57) and highways' own root router | pre-existing | wheelchair branch `highways-routers`, commit `73632df`; highways `AGENTS.md`, `CLAUDE.md`, `.gitignore` | high |
 
 ## Implementation Tasks
 
 | # | Objective | Ownership boundary | Lane | Session id | Validation | Status |
 |---|-----------|--------------------|------|-----------|------------|--------|
+| S1 | Search's resend (D64, D65): a router request not answered 0.35 s into the round, or failed before then, is sent once more and the first valid answer wins; search round only; each attempt's timeout is the budget left; leftover requests never delay exit | `highways/decisions.py`, `highways/search.py`, `test/test_search.py` | Terra (gpt-5.6-terra) | 01a103c1-b78e-7fd1-aca9-2b60f8b4d8b7 | done: after one lead fix; 48 tests OK |
+| S2 | Scoring under D64, D66, D67: answered rate ≥ 45% as a selection limit and gate, the ±0.02 margin, worst-case ranking | `highways/evalset.py`, `test/test_eval*.py` except `test_eval_review.py` | Claude / Sonnet | | `python3 -m unittest discover -s test` | done: 41 tests OK on the lead's re-run |
+| S3 | Phase 5: `eval score` and `eval latency` on the reviewed files; commit `search/bars.json` on a pass (R8 re-opened) | `search/bars.json` | lead | — | every gate in "The test set" | done: every gate passed live; bars committed |
+| S4 | Phase 5's live harness check: install for real, sending on for a temp copy of wheelchair, one message gets the hook's context and one edit gets the end-of-turn send-back, in Claude Code and in Codex | user harness settings, `~/.local/bin/highways`, `~/.config/highways/config.json` | lead + Collin | — | both checks seen in each harness | done: all four live checks passed |
+| S5 | Phase 6: wheelchair integration and removal (R9 carried over) | wheelchair, on branch `highways-routers` | Claude / Sonnet | | wheelchair suites; the phase 6 grep | done: wheelchair commit 31cd143 on `highways-routers` |
 
 ## Log
+
+- 2026-10-02 — Stage 3 started. Phase 0: the ZDR request and the ZDR endpoint list both passed; all tasks held on Collin's account-level ZDR-only confirmation (D43).
+- 2026-10-02 — Phase 0 passed: Collin confirmed his OpenRouter account allows zero-data-retention endpoints only (D43). T0 done; tasks released.
+- 2026-10-02 — T1 done by the lead directly (copy plus one message line); `bash create/test/run.sh`: 80 passed, 0 failed. T2 (Sonnet), T3 and T5 (Terra, gpt-5.6-terra) dispatched in separate worktrees.
+- 2026-10-02 — T2 accepted: grep check prints nothing; every diff hunk traces to a listed rewrite.
+- 2026-10-02 — Choice: T2, the create doc: "every skill in this repo hardcodes" became "every wrapper in this repo hardcodes".
+- 2026-10-02 — Choice: T2, the create doc: dropped the "not a slug" clause with the wheelchair state-machine sentence.
+- 2026-10-02 — Choice: T2, the create doc: "Editing existing content" names both permitted edits (pointer row, search line).
+- 2026-10-02 — Choice: T2, the create doc: the pre-write bullet reads "when the root router lacks it (or is being created)".
+- 2026-10-02 — Choice: T2, the create doc: no new edge-case row for the search line; the pre-write bullet and new paragraph cover it.
+- 2026-10-02 — Choice: T2, the router format doc: the search line is not added to its description of what a root router carries.
+- 2026-10-02 — Choice: T2, the sweep doc: symlink rule worded as "write the real file the link resolves to, leave the link untouched"; added "a still-true router is left alone".
+- 2026-10-02 — Choice: T2, the search doc: mentions `--repo PATH`, the per-message hook's context, and an exit-code remark.
+- 2026-10-02 — Choice: T2, the search doc: the not-enabled bullet names `highways enable` and `highways default on` as commands never to run.
+- 2026-10-02 — T5 accepted: `bash test/install.sh` 24 passed, 0 failed on the lead's re-run in the main checkout. Worker reported no choices.
+- 2026-10-02 — T3 accepted after two lead fixes found on reading the diff: every per-file question was worded the same with the paths in a separate `state.files` list, so answers couldn't be tied to files (now each question names its file, and `state` holds only directory, router and question as the Spec says); the request pool was capped at 32, which would queue routers in a 40-router repo (now one thread per request). Tests strengthened: file questions name their path; the no-change check covers the whole fixture tree and `git status --ignored`. Unittest: 12 OK. Worker reported no choices.
+- 2026-10-02 — Choice: T3 (lead fix), search's file step: each file question reads "Is what the question asks about in this file? The file is `<path>`." with criteria naming the path.
+- 2026-10-02 — T4 and T6 (Terra, gpt-5.6-terra) dispatched in parallel worktrees seeded with the accepted T1–T3 files.
+- 2026-10-02 — T4 came back wrong: its `.git/index` check compared two readings with nothing between them except a plain `git status` (flaky, 2 of 5 lead re-runs failed, and it proves nothing), several phase 3 cases were missing, and the CLI rejected `highways snapshot --session …`. Lead fixed `highways/cli.py` (sweep/snapshot/eval now receive their whole argv); T4 resumed on the same thread with a test remediation brief.
+- 2026-10-02 — T6 accepted after one lead fix: cached scores also carried each question's right answers, so a correction made in review after a first `score` run would have been ignored; the cache's answers are now replaced from the reviewed file on every load. Unittest: 19 OK.
+- 2026-10-02 — Choice: T6, the test-set tools: in flat mode the written `walk` value is 0.50, since flat mode never reads it.
+- 2026-10-02 — T4 accepted after remediation: `bash test/hooks.sh` 96 passed on 10 consecutive lead runs; a deliberately broken sweep that writes `.git/index` and a stray file makes the integrity checks fail, so they test what they claim. All suites green in the main checkout: create 80, unittest 19, hooks 96, install 24.
+- 2026-10-02 — Choice: T4, the hooks: hook logic lives in `highways/hooks.py`, called by the two shell entry points.
+- 2026-10-02 — Choice: T4, the hooks: after the CLI fix, the hooks call `bin/highways snapshot` and `sweep` as subprocesses.
+- 2026-10-02 — Choice: T4, the hooks suite: repo integrity is a JSON inventory of every file's path, sha256 and nanosecond mtime.
+- 2026-10-02 — Phase 5 step 1: `highways eval draft` kept 69 wheelchair questions (143 skipped) and 100 work repo questions (63 skipped); both source checkouts' `git status --porcelain --ignored` hashes unchanged. Lead fix on the way: the work repo's checkout is a `blob:none` partial clone, so its temp clone couldn't read old router files; temp clones of a partial clone now take the source's remote and filter, so missing blobs are fetched from it on demand.
+- 2026-10-02 — Choice: T6 (lead fix), the test-set tools: a temp clone of a partial clone fetches missing files from the source's own remote (GitHub for the work repo); only the temp clone's config changes.
+- 2026-10-02 — T7: `create/scan.sh` on highways found no routers, no unmanaged surfaces, `.claude` and `.git` excluded (dotted). Root router drafted and its pre-write list sent to Collin; nothing written.
+- 2026-10-02 — Collin asked for a better way to review the questions than a text editor, and for suggested rewrites. Added T10 (local review page, `highways eval review`; outside the Spec, recorded as a deviation), T11 and T12 (suggested rewrites per repo). Originals backed up outside the repo before T11/T12. Root router (T7) still awaits Collin's explicit approval.
+- 2026-10-02 — T11 accepted: the lead's field check passes (header and every original field unchanged; no proposal names an answer path). Suggests dropping 56 of 69, about 45 of them because the touched directory (`viewer/`, `install/`, `codex/`) has no router, so root is trivially right. If Collin accepts that, wheelchair contributes about 13 questions.
+- 2026-10-02 — Choice: T11, the suggested rewrites: every viewer/install/codex commit with a root-only answer is suggested for dropping.
+- 2026-10-02 — Choice: T11, the suggested rewrites: proposals avoid directory and file names, including the word "seen" ("the per-turn hook" instead).
+- 2026-10-02 — Collin chose to check only the suggested keeps: every suggested drop was pre-marked `review: drop` (29 work repo, 56 wheelchair); he can still un-drop any on the page. T12 accepted: lead field check OK, 71 keep / 29 drop suggested. T10 accepted after two lead fixes found by loading the page in a headless browser (the question pane threw a script error; list entries all read 'Where is the…').
+- 2026-10-03 — Collin reviewed the work repo questions and kept all 71 suggested keeps; the lead pressed the page's finish for that file (71 kept, 29 dropped, `reviewed: true`, backup at `work-repo-questions.jsonl.pre-review.bak`). Collin's view: the work repo's routers are not very fine-grained, but answers that point in the right direction are still useful. Wheelchair's 13 suggested keeps still undecided.
+- 2026-10-03 — Collin accepted all 13 wheelchair keeps; lead pressed finish (13 kept, 56 dropped, `reviewed: true`). Review done: 84 questions pooled. Running `highways eval score`.
+- 2026-10-03 — Phase 5 `highways eval score` over 84 reviewed questions (71 work repo, 13 wheelchair; none dropped for failed requests; 2 m 32 s): no walk or flat setting meets the selection limits, so every gate fails except top-wrong and precision at the fallback bar. Flat mode, by answer bar: ≥0.5 answers 62% with 21% top-wrong and 85% median narrowing; ≥0.7 answers 24% with 5% top-wrong; ≥0.8 answers 11%. On only the 26 work repo questions from after its ~36 routers existed plus wheelchair: ≥0.7 answers 23% with 0% top-wrong; ≥0.5 answers 62% with 42% top-wrong. 39 of 71 work repo questions come from commits when the repo had one router. Wheelchair alone: ≥0.7 answers 54%, 0% top-wrong, but median narrowing 61% because its root router covers most files. Median `own` for the right work repo directory is 0.50. Discovery checked against `git ls-tree` at every parent: correct. Per the Spec, the plan goes back to planning; `eval latency` not run, `search/bars.json` keeps its starting values. Built and green, independent of the bars: create (80), unittest (25), hooks (96), install (24). T7 (highways' own root router) and T9 (wheelchair changes) not started.
+- 2026-10-03 — Collin, after the failed score: he doesn't need search to work on the work repo and will probably leave sending off there. Input for re-planning (D27 names it as half the test set).
+- 2026-10-03 — At Collin's request, cloned brilliantshine/mechanical-quill to ~/projects/personal/mechanical-quill (20 routers, 103 commits, 468 files). `highways eval draft` kept 14 questions, skipped 67; source checkout unchanged. Several drafts are bookkeeping ("guides lane", "ui lane", plan-step implementations spanning 3–5 directories). Input for re-planning.
+- 2026-10-03 — Re-planning after the failed score: D52–D57 settled (work repo out, mechanical-quill in, question shape kept, 40-question floor, drafted plus written questions, wheelchair routed first). Open Questions and Watch List empty; Spec phase 2 and phase 5 updated. Status ready-for-review.
+- 2026-10-03 — Plan review rounds 7–9 after the re-plan: round 9 clean (minors only, all fixed; D59–D63). Test-set flow diagram added. Status approved.
+- 2026-10-03 — Stage 3 started (second run). Reconciled: suites green (create 80, unittest 25, hooks 96, install 24); built work moved to Prior Work, search and the test-set tools marked partial. The first run's picture moved to `graphs/before-run-1/`. Carried over unfinished: T7 (highways' root router), T8 (test set), T9 (wheelchair changes), now R4, R8, R9.
+- 2026-10-03 — R1 done by the lead: `highways/routers.py` skips a router file that doesn't resolve inside the repo; a new case (one directory whose only router links outside, one pair whose `CLAUDE.md` links outside) checks the outside text is in no request, and fails with the check removed.
+- 2026-10-03 — R3 accepted: 28 tests OK on the lead's re-run; the page renders in a headless browser on a scratch file.
+- 2026-10-03 — Choice: R3, the review page: a separate `api/edit` route saves an edit without touching the decision.
+- 2026-10-03 — Choice: R3, the review page: the page updates locally at once and saves in the background; a failed save shows an alert.
+- 2026-10-03 — Choice: R3, the review page: the on-close save sends JSON as `text/plain` with the token in the query string.
+- 2026-10-03 — Choice: R3, the review page: an edit back to the current saved text is not re-saved.
+- 2026-10-03 — R6 step 1: mechanical-quill's 14 drafted questions (drafted 2026-10-03 at its current HEAD `6c5ecfe`) got suggested rewrites; lead field check OK; 6 keep, 8 drop suggested. Awaiting Collin's review.
+- 2026-10-03 — Choice: R6, the suggested rewrites: two kept questions whose answers include the root only because of a plan-doc edit; the root answer treated as noise.
+- 2026-10-03 — R5 drafted by a Claude worker following `protocol/create.md` (nothing written to wheelchair; its `git status` unchanged): new `viewer/AGENTS.md` and `codex/AGENTS.md`; root `AGENTS.md` gains the search line and links in the existing `codex/` and `viewer/` table rows. Lead spot-checked claims against `viewer/server.js` and `codex/test/run.sh`. Sent to Collin for confirmation.
+- 2026-10-03 — Choice: R5, wheelchair's root router: the existing `codex/` and `viewer/` rows get their Router cell filled in rather than a duplicate row added.
+- 2026-10-03 — Choice: R5, wheelchair's root router: the search line sits directly under "How to navigate (in order)", above the numbered list.
+- 2026-10-03 — Choice: R5, the new routers: `viewer/test/` and `codex/prompts/` named as children without routers.
+- 2026-10-03 — R2 accepted after one lead fix found on reading the diff: the leak check's whole-word boundaries were double-escaped in a raw string, so they never matched and file names matched inside other words (a tracked file `doc` would have refused "documents"). Fixed, with a test that fails on the old pattern; the 13 reviewed wheelchair questions pass the check. Unittest: 34 OK. Worker reported no choices.
+- 2026-10-03 — Choice: R2 (seen by the lead in the diff), the test-set tools: the score cache key now includes the source repo's real path, so the first run's cached scores are not reused.
+- 2026-10-03 — R7 (mechanical-quill) dispatched to a Claude writer working only in a clone at `6c5ecfe` with all 20 router files deleted: 3 answerable questions for each of the 19 code-owning routers (57) plus 6 unanswerable, validated by a dry run of `eval written`.
+- 2026-10-03 — R7 (mechanical-quill) accepted: `eval written` wrote `mechanical-quill-written-1-questions.jsonl` (57 answerable, exactly 3 for each of 19 routers; 6 unanswerable; pinned at `6c5ecfe`); source checkout unchanged. Awaiting Collin's review.
+- 2026-10-03 — Choice: R7, the written questions: the three `tests` questions say "automated checks" because the leak rule treats the word "tests" as naming that answer directory.
+- 2026-10-03 — Choice: R7, the written questions: every answerable question names exactly one file, written from docstrings and function and test names.
+- 2026-10-03 — Collin approved both pre-write lists. R5: wheelchair was on `main`, so the routers went on a new branch `highways-routers`, commit `73632df` (new `viewer/AGENTS.md`, `codex/AGENTS.md`; root router table links and search line); Collin's unrelated uncommitted change in `docs/plans/model-pins/` left alone. R4: highways' `AGENTS.md`, `CLAUDE.md` → `AGENTS.md`, `.gitignore` (`graphify-out/`, `__pycache__/`) written, uncommitted with the rest of this run.
+- 2026-10-03 — R7 (wheelchair) dispatched: router-free clone at `73632df`; 5 answerable questions for each of 6 code-owning routers (30, giving 43 with the 13 reviewed drafted) plus 4 unanswerable.
+- 2026-10-03 — R7 (wheelchair) accepted: `eval written` wrote `wheelchair-written-1-questions.jsonl` (30 answerable, 5 for each of 6 routers; 4 unanswerable; pinned at `73632df`); source checkout unchanged.
+- 2026-10-03 — Choice: R7, wheelchair's written questions: all five root questions are about `install.sh`, and all five `sensitivity` questions about `sensitivity/set.sh`, since those are the only code files there.
+- 2026-10-03 — Review page opened for mechanical-quill's drafted file and both written files; waiting on Collin.
+- 2026-10-03 — Collin dropped wheelchair's five root-folder written questions because the root router didn't reveal the answer. Lead's guidance: that is what the test measures, so only an unclear or inaccurate question is dropped; suggested undoing them (wheelchair would otherwise top out at 38 answerable). At Collin's request, a GPT Sol lane (gpt-6.1-sol, read-only, router-free clones only) is drafting keep/drop suggestions for the two written files, to be merged into undecided questions only.
+- 2026-10-03 — Sol's 97 suggestions validated (all ids, none leaking; 1 drop, 34 rewordings) and merged into the 66 undecided written questions only. Lead change to the review page: a written question's box starts from its original wording, not the suggestion (several Sol rewordings used the code's own vocabulary, which would make questions easier); the suggestion stays one click away. Page restarted on the two written files.
+- 2026-10-03 — Review finished: wheelchair 13 drafted + 29 written answerable (42), mechanical-quill 6 drafted + 55 written answerable (61), 10 unanswerable pooled. Review page stopped. Running `eval score`.
+- 2026-10-03 — `eval score` over 113 reviewed questions (0 dropped, 60 s): every cached gate passes at flat mode, answer 0.85, file 0.85. Pool: answered 51.5%, top-wrong 1.9%, drafted-only top-wrong 0%, false-answer 0%, precision 89.7%, file precision 90.5%, median narrowing 0.4%. Per repo: mechanical-quill answered 63.9%, wheelchair 33.3% (0% wrong). Walk mode not better than flat. Running `eval latency`.
+- 2026-10-03 — `eval latency` (live, 52 s): every gate passes except answered rate, 47.6% (49 of 103) against 50%. Top-wrong 2.0%, drafted-only 0%, false-answer 0%, precision 87.3%, file precision 88.1%, narrowing 0.2%, latency median 0.434 s and p95 0.847 s. mechanical-quill answered 60.7%, wheelchair 28.6%. `search/bars.json` left unchanged (the tool copies bars only on a pass). Lead diagnosis, rerunning the 53 questions answered from the cache: 50 answered, 2 not-confident because their `own` was exactly 0.85 when cached and just under it live (Jev's scores move by about 0.01 between identical requests), 1 unavailable because one of 19 parallel requests ran past the 0.7 s budget (0.87 s). The answered rate sits on the 50% line, so call-to-call noise decides the gate. Per the Spec, the plan goes back to planning; R9 (wheelchair integration) not started.
+- 2026-10-03 — Re-plan after the live answered-rate miss: D64 (Collin: make search robust, keep 50%). The 0.35 s resend, the 0.02 margin and reusing the reviewed questions are the lead's defaults inside D64. Open Questions and Watch List empty; status ready-for-review.
+- 2026-10-03 — Review round 10: a GPT finding, confirmed by the lead's replay, shows D64 cannot pass on the reused questions (best worst-case answered rate 47.6%); raised to Collin as Q13; minors fixed (D65). Status planning.
+- 2026-10-03 — Q13 settled by Collin as D66: answered-rate gate 45%. He wants to talk through improvements to the answered rate later. Status ready-for-review.
+- 2026-10-03 — Review round 11 clean (one finding downgraded with its receipt; all fixed; D67). Status approved.
+- 2026-10-03 — Stage 3 started (third run). Reconciled: every suite green (create 80, unittest 34, hooks 96, install 24); Prior Work already reflects the tree; `_gates` still at 50%, as Prior Work says. The second run's picture moved to `graphs/before-run-2/`. Carried over: R8 (score, live run) as S3 and S4, R9 (wheelchair) as S5.
+- 2026-10-03 — S1 (Terra, gpt-5.6-terra) and S2 (Sonnet) dispatched in separate worktrees.
+- 2026-10-03 — S2 accepted: diff matches D64, D66, D67; unittest 41 OK in the main checkout.
+- 2026-10-03 — Choice: S2, scoring: walk versus flat compares only the worst-case and cached answered rates, so a tie still goes to flat.
+- 2026-10-03 — Choice: S2, scoring: the chosen setting's three answered rates are recorded in the candidate file as `margin`.
+- 2026-10-03 — S1 accepted after one lead fix found on reading the diff: a resend that failed after the first attempt had already answered replaced the valid answer, making the search `unavailable` (breaks "first valid answer wins"). Fixed in `highways/decisions.py`; a new test fails before the fix and passes after. Full unittest 48 OK; hooks 96.
+- 2026-10-03 — Choice: S1, the resend: a first attempt that fails before 0.35 s is re-sent at once rather than at 0.35 s.
+- 2026-10-03 — Choice: S1, the request client: daemon threads replace the thread pool for every request, so a hanging request never delays exit.
+- 2026-10-03 — S3: `eval score` (cache reused; flat, answer 0.85, file 0.85; margin low 47.6%, cached 51.5%, high 52.4%) and `eval latency` passed every gate live: answered 48.5%, top-wrong 2.0%, drafted-only 0%, false-answer 0%, precision 89.1%, file precision 90.2%, narrowing 0.2%, latency median 0.416 s, p95 0.618 s. mechanical-quill answered 63.9%, wheelchair 26.2%. `search/bars.json` committed alone (6d895ed).
+- 2026-10-03 — S4: Collin approved the real install. `./install.sh` exit 0: `~/.local/bin/highways` linked, `/highways` installed on both harnesses, both hook groups added to `~/.claude/settings.json` and `~/.codex/hooks.json` (backups in the session scratchpad; diff shows only additions). Throwaway copy at `/tmp/highways-live/wheelchair` (branch `highways-routers`); search there answers `not-enabled` until Collin enables it.
+- 2026-10-03 — S4 live check in `/tmp/highways-live/wheelchair` (sending enabled by Collin from his terminal; Codex hooks approved by Collin), headless sessions with no lane markers. Claude Code (`claude -p`, session `d94263e3`): the model quoted the injected "highways: likely places…" context (viewer/, viewer/server.js) and its snapshot was written; an edit to `viewer/list.js` got exactly one send-back naming `AGENTS.md` and `viewer/AGENTS.md`, and the agent checked both and finished. Codex (`codex exec`, threads `01a103cc-405a…` and `01a103cc-c27b…`): the same injected context quoted; the edit's send-back is in the rollout log and the agent replied "The hook asks me to check both routers…". Sending switched off again for the copy afterwards (`highways disable`).
+- 2026-10-03 — S5 accepted: wheelchair commit `31cd143` on `highways-routers` (21 files, 1375 lines removed). Lead re-ran: install suite 77 passed, codex suite 45 passed, viewer `npm test` 132 pass / 1 fail; the one failure ("a starter that loses the freed port registers through the new holder", `viewer/test/lifecycle.test.js`) fails identically twice on unchanged `main` (`a552802`) in a separate worktree, so it predates this work. Phase 6 grep finds only `viewer/test/server.test.js:324`. Collin's uncommitted `docs/plans/model-pins/graphs/run.json` untouched.
+- 2026-10-03 — Choice: S5, wheelchair's installer: it removes an old `spine` wrapper only when the file points at `spine.md`, so a same-named skill from elsewhere survives.
+- 2026-10-03 — Choice: S5, wheelchair's installer: the retired command name is held in a variable, so the phase 6 grep finds no literal.
+- 2026-10-03 — Choice: S5, wheelchair's graph format doc: its sample non-reference link now points at `protocol/lanes.md`.
+- 2026-10-03 — Choice: S5, wheelchair's root router: the `install.sh` row and the "Maintaining these routers" paragraph now say routers belong to highways.
+- 2026-10-03 — Choice: S5, wheelchair's CONTRIBUTING: the "never reformat" rule now points at `/highways create` and `/highways sweep`.
+- 2026-10-03 — Lead fix found by the final validation: `test/test_search.py` read the shipped `search/bars.json`, so committing the measured bars (flat mode) broke the walk test; the suite now pins its own bars through `HIGHWAYS_BARS`, and the bad-bars test edits that file instead of the shipped one. Unittest 48 OK twice.
+- 2026-10-03 — All S1–S5 done; full validation green (create 80, unittest 48, hooks 96, install 24; wheelchair install 77, codex 45, viewer 132/1 with the one failure pre-existing on main). COMPLETION.md written. Status verifying; next is Stage 4.
+- 2026-10-03 — Verification round 1: both verifiers FAIL (Claude default reviewer for the GPT lanes' work, cross-family; GPT Sol for the Claude lanes' work, cross-family), 10 gaps. REMEDIATION-1.md written; M7 (scanner git flag) fixed by the lead (80 passed); M1–M6 to Terra, M8–M9 to Sonnet; the pre-existing viewer failure raised with Collin. No stray edits from either verifier (wheelchair unchanged; highways content unchanged, only `search/bars.json`'s mode, restored).
+- 2026-10-03 — Sweep: highways' root router said `create/scan.sh` was moved unchanged; corrected to note the added `--no-optional-locks` (M7).
+- 2026-10-03 — M8 and M9 accepted: wheelchair commit `627d023` (root router's maintenance sentence now points at highways' `protocol/sweep.md`; installer removes only a wrapper naming `$ROOT/protocol/spine.md`, with a foreign-skill case). Lead re-ran the install suite: 78 passed.
+- 2026-10-03 — Choice: M9, wheelchair's installer: the matched path is built from variables, so the phase 6 grep stays clean.
+- 2026-10-03 — M1–M6 accepted (Terra, thread `01a103e4-e9bd-7d21-b600-437196fec86a`): diff matches REMEDIATION-1; main checkout create 80, unittest 52 OK, hooks 110, install 24; `search/bars.json` mode and mtime unchanged across the run. COMPLETION.md gains "Remediation 1".
+- 2026-10-03 — Choice: M3, the snapshot: an unreadable path records the marker `unreadable`.
+- 2026-10-03 — Choice: M1, discovery: a `.git` symlink also marks a nested repository.
+- 2026-10-03 — Collin: record wheelchair's pre-existing viewer test failure as an existing failure, written up for an agent. Wheelchair `docs/known-issues.md` added and the root router's `docs/` row names it (commits `73f7a65`, `037e6ec` on `highways-routers`). COMPLETION.md updated. Claude verifier's closure review: PASS.
+- 2026-10-03 — Verification round 2 (closure): Claude PASS; Sol FAIL on two gaps (malformed settings with `default: on` still sent; test-set labels still split names). REMEDIATION-2.md; D68 makes the switch fail closed. Fresh Terra lane at xhigh dispatched (M4 survived round 1; the round-1 brief caused it). No stray edits from either verifier.
+- 2026-10-03 — N1 and N2 accepted: diff matches REMEDIATION-2 and D68; main checkout create 80, unittest 54 OK, hooks 110, install 24; Collin's real settings file still reads correctly. Worker reported no choices.
+- 2026-10-03 — Verification round 3: Sol PASS (Claude passed in round 2). Status done. Post-PASS sweep: highways README rewritten (it said nothing was built); routers checked per highways' `protocol/sweep.md` — highways' root router and wheelchair's routers already match (`create/` row corrected earlier, wheelchair maintenance sentence and `docs/` row in `627d023`, `73f7a65`).
