@@ -65,7 +65,7 @@ flowchart TD
 | Search steps 5–6: walk, flat mode, rank, cap (D22, D44, D45, D20) | pre-existing | `highways/search.py:48` `walk` | `test_root_is_answer_and_real_cli_json`, `test_child_answer`, `test_weak_parent_hides_child`, `test_flat_skips_walk`, `test_not_confident`, `test_cap_of_five` |
 | Search step 7: file step, each question names its file (D16, D19, D51) | pre-existing | `highways/search.py:84` `named_files`, `_file_body` | `test_zdr_and_file_step_only_existing_named_files` |
 | Search step 8 and bars file validation | pre-existing | `highways/search.py:150` `_bars` (with `HIGHWAYS_BARS` seam), `:164` | `test_bad_bars_are_unavailable` |
-| Bars set by the test set | this run (S3) | `search/bars.json` = `{"answer": 0.85, "cap": 5, "file": 0.85, "mode": "flat", "walk": 0.5}`, commit `6d895ed` | `eval latency` pass (below) |
+| Bars set by the test set | this run (S3) | `search/bars.json` = `{"answer": 0.85, "cap": 5, "file": 0.85, "mode": "flat", "walk": 0.5}`, commit `41b8913` | `eval latency` pass (below) |
 | Test set: draft, written, review, floors, leak rule (D26, D37, D50, D55, D56, D58, D60–D63) | pre-existing | `highways/evalset.py:284` `draft`, `:207` `written`, `:190` `_leaks`, `:394` `_floor_and_leaks`, `:45` `_inherit_promisor`; `highways/eval_review.py:300` `run`, `:94` `edit`, `:116` `finish` | `test/test_eval.py`, `test/test_eval_written.py`, `test/test_eval_review.py` |
 | Test set: metrics per pool/repo/origin, unanswerable, gates (D46, D48, D49, D60, D62) | pre-existing | `highways/evalset.py:450` `_metrics`, `:494` `_metric_groups` | `test/test_eval.py`, `test/test_eval_written.py` |
 | Test set: 45% selection limit and gate, ±0.02 margin, worst-case ranking (D64, D66, D67) | this run (S2) | `highways/evalset.py:503` `_passes_selection`, `:515` `_shifted`, `:539` `_best_for_mode`, `:566` `_gates` | `test/test_eval_margin.py` |
@@ -185,7 +185,7 @@ The one viewer failure predates this work: `node --test test/lifecycle.test.js` 
 - `_named_at_tree` in `highways/evalset.py` still splits a backticked name on whitespace, so a
   router-named file with a space would not count as an expected file in the test set (no effect
   on the current bars; noted by the round-2 verifier).
-- Nothing in the highways repo is committed except `search/bars.json` (`6d895ed`); the
+- Nothing in the highways repo is committed except `search/bars.json` (`41b8913`); the
   wheelchair branch is not merged.
 - The real install left highways' hooks active in every session; sending stays off except for
   repos Collin enables (`/tmp/highways-live/wheelchair` was switched back off).
